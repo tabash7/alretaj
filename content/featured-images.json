@@ -1,0 +1,134 @@
+[
+  {
+    "slug": "business-website-that-works",
+    "image": "/assets/blog/business-website-that-works-1200.webp",
+    "thumbnail": "/assets/blog/business-website-that-works-480.webp",
+    "alt": "محادثة عمل حول موقع شركة على حاسوب محمول في مكتب أنيق",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "A business visitor and consultant discussing a clear company website on a laptop in an elegant reception.",
+    "source_bytes": 1853131,
+    "featured_bytes": 54004,
+    "thumbnail_bytes": 15044
+  },
+  {
+    "slug": "custom-business-apps",
+    "image": "/assets/blog/custom-business-apps-1200.webp",
+    "thumbnail": "/assets/blog/custom-business-apps-480.webp",
+    "alt": "فريق يخطط لتطبيق أعمال مخصص باستخدام بطاقات سير العمل",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "A small business team planning a custom internal application with workflow cards beside a laptop.",
+    "source_bytes": 1989980,
+    "featured_bytes": 70368,
+    "thumbnail_bytes": 18840
+  },
+  {
+    "slug": "systems-integration-without-duplicate-work",
+    "image": "/assets/blog/systems-integration-without-duplicate-work-1200.webp",
+    "thumbnail": "/assets/blog/systems-integration-without-duplicate-work-480.webp",
+    "alt": "زميلان ينسقان تبادل المعلومات بين قسمين في بيئة عمل",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Two professionals coordinating a single handoff between workflows in a modern glass office.",
+    "source_bytes": 1833933,
+    "featured_bytes": 54162,
+    "thumbnail_bytes": 14942
+  },
+  {
+    "slug": "cloud-readiness-for-business",
+    "image": "/assets/blog/cloud-readiness-for-business-1200.webp",
+    "thumbnail": "/assets/blog/cloud-readiness-for-business-480.webp",
+    "alt": "فريق تقنية يراجع خطة الانتقال إلى السحابة داخل مركز بيانات",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Technology lead and operations manager reviewing cloud readiness in a modern data center.",
+    "source_bytes": 2044272,
+    "featured_bytes": 81480,
+    "thumbnail_bytes": 18470
+  },
+  {
+    "slug": "technical-support-and-operations",
+    "image": "/assets/blog/technical-support-and-operations-1200.webp",
+    "thumbnail": "/assets/blog/technical-support-and-operations-480.webp",
+    "alt": "مهندس دعم يساعد زميلته في متابعة نظام العمل",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Calm support engineer helping a colleague at a workstation with abstract monitoring screens.",
+    "source_bytes": 1848863,
+    "featured_bytes": 53874,
+    "thumbnail_bytes": 12996
+  },
+  {
+    "slug": "data-migration-with-context",
+    "image": "/assets/blog/data-migration-with-context-1200.webp",
+    "thumbnail": "/assets/blog/data-migration-with-context-480.webp",
+    "alt": "فريق يقارن سجلات قديمة ببيانات على حاسوب قبل ترحيلها",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Two professionals carefully checking archived records against a modern laptop before migration.",
+    "source_bytes": 1944341,
+    "featured_bytes": 61874,
+    "thumbnail_bytes": 15848
+  },
+  {
+    "slug": "legacy-system-modernization",
+    "image": "/assets/blog/legacy-system-modernization-1200.webp",
+    "thumbnail": "/assets/blog/legacy-system-modernization-480.webp",
+    "alt": "مهندسان يقارنان نظاماً قديماً بحاسوب حديث لتطوير العمل",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Two engineers comparing an older office computer and a modern laptop while planning modernization.",
+    "source_bytes": 1834895,
+    "featured_bytes": 54508,
+    "thumbnail_bytes": 14122
+  },
+  {
+    "slug": "digital-transformation-first-step",
+    "image": "/assets/blog/digital-transformation-first-step-1200.webp",
+    "thumbnail": "/assets/blog/digital-transformation-first-step-480.webp",
+    "alt": "فريق عمل يرسم خطوات عملية قبل تحويلها إلى مسار رقمي",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "A cross-functional team mapping one everyday process using blank cards and a tablet.",
+    "source_bytes": 1948538,
+    "featured_bytes": 69930,
+    "thumbnail_bytes": 17490
+  },
+  {
+    "slug": "workflow-automation",
+    "image": "/assets/blog/workflow-automation-1200.webp",
+    "thumbnail": "/assets/blog/workflow-automation-480.webp",
+    "alt": "بطاقات فارغة مرتبة على مكتب لتمثيل خطوات سير عمل متكرر",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Hands arranging blank workflow cards into a clear sequence beside a tablet.",
+    "source_bytes": 1972033,
+    "featured_bytes": 47486,
+    "thumbnail_bytes": 13344
+  },
+  {
+    "slug": "business-data-and-reporting",
+    "image": "/assets/blog/business-data-and-reporting-1200.webp",
+    "thumbnail": "/assets/blog/business-data-and-reporting-480.webp",
+    "alt": "محللة ومدير يناقشان مؤشرات عمل معروضة على شاشة",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "An analyst and leader discussing abstract charts on a wall display before a business decision.",
+    "source_bytes": 1812911,
+    "featured_bytes": 56320,
+    "thumbnail_bytes": 15150
+  },
+  {
+    "slug": "empid-hr-operations",
+    "image": "/assets/blog/empid-hr-operations-1200.webp",
+    "thumbnail": "/assets/blog/empid-hr-operations-480.webp",
+    "alt": "فريق موارد بشرية يتابع سير عمل الموظفين على حاسوب محمول",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "A human resources team reviewing an abstract employee workflow on a laptop, without depicting the real EMPID interface.",
+    "source_bytes": 1881870,
+    "featured_bytes": 56226,
+    "thumbnail_bytes": 15052
+  },
+  {
+    "slug": "multi-branch-operations",
+    "image": "/assets/blog/multi-branch-operations-1200.webp",
+    "thumbnail": "/assets/blog/multi-branch-operations-480.webp",
+    "alt": "مديران في مكتبين مختلفين ينسقان العمل بين الفروع",
+    "prompt_style": "Use case: ads-marketing. Asset type: wide 16:9 editorial featured image for a premium Arabic technology company blog. Realistic editorial photography, deep navy with restrained warm gold highlights and ivory, natural human gestures, refined composition, no logos, text, numerals, watermarks, or legible interface content.",
+    "prompt_scene": "Two managers in different branch offices coordinating by video meeting.",
+    "source_bytes": 1827254,
+    "featured_bytes": 65398,
+    "thumbnail_bytes": 16588
+  }
+]
