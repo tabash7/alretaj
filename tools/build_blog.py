@@ -396,6 +396,35 @@ def build_sitemap() -> None:
     (ROOT / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+MODULE_LABELS = {
+    "core_hr": "ملفات الموظفين", "onboarding": "التهيئة الوظيفية", "sso": "الدخول الموحد", "leave": "الإجازات",
+    "attendance": "الحضور والانصراف", "timetracking": "تتبع الوقت والإضافي", "payroll": "الرواتب", "benefits": "المزايا",
+    "expenses": "المصروفات", "projects": "المشاريع والمهام", "project_costing": "تكلفة العمالة بالمشاريع", "assets": "الأصول",
+    "performance": "الأداء", "employee_relations": "علاقات الموظفين", "engagement": "الاستبيانات والتفاعل",
+    "gcc_compliance": "الامتثال الخليجي", "reports_analytics": "التقارير والتحليلات", "email": "البريد والقوالب",
+}
+
+
+def replace_block(text: str, name: str, content: str) -> str:
+    start, end = f"<!-- {name}_START -->", f"<!-- {name}_END -->"
+    a, b = text.index(start) + len(start), text.index(end)
+    return text[:a] + "\n" + content + "\n          " + text[b:]
+
+
+def build_home() -> None:
+    path = ROOT / "index.html"
+    html = path.read_text(encoding="utf-8")
+    modules = [p for p in sorted_posts() if p.get("module") in MODULE_LABELS]
+    chips = "".join(
+        f'<a class="module-chip" href="/blog/{esc(p["slug"])}/"><span>{esc(MODULE_LABELS[p["module"]])}</span><i aria-hidden="true">←</i></a>'
+        for p in sorted(modules, key=lambda x: list(MODULE_LABELS).index(x["module"]))
+    )
+    html = replace_block(html, "HOME_MODULES", f'<div class="module-grid">{chips}</div>')
+    latest = "\n".join(article_card(p) for p in sorted_posts()[:6])
+    html = replace_block(html, "HOME_BLOG", latest)
+    path.write_text(html, encoding="utf-8")
+
+
 def main() -> None:
     slugs = [post["slug"] for post in POSTS]
     if len(slugs) != len(set(slugs)):
@@ -409,6 +438,7 @@ def main() -> None:
     for post in POSTS:
         build_article(post, posts_by_slug)
     build_sitemap()
+    build_home()
     print(f"Built blog index and {len(POSTS)} articles")
 
 
