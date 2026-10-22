@@ -50,7 +50,7 @@ def esc(value: str) -> str:
     return html.escape(value, quote=True)
 
 
-def page_head(title: str, description: str, path: str, schema: object, og_type: str = "article", visual: dict | None = None) -> str:
+def page_head(title: str, description: str, path: str, schema: object, og_type: str = "article", visual: dict | None = None, keywords: list[str] | None = None) -> str:
     canonical = f"{SITE}{path}"
     image_url = f"{SITE}{visual['src']}" if visual else f"{SITE}/assets/alretaj-badge.png"
     image_alt = visual["alt"] if visual else BRAND
@@ -62,12 +62,14 @@ def page_head(title: str, description: str, path: str, schema: object, og_type: 
   <meta name="theme-color" content="#071a34">
   <title>{esc(title)}</title>
   <meta name="description" content="{esc(description)}">
+  {f'<meta name="keywords" content="{esc("، ".join(keywords))}">' if keywords else ''}
   <link rel="canonical" href="{canonical}">
   <link rel="icon" type="image/png" href="/assets/alretaj-badge.png">
   <link rel="preload" href="/assets/fonts/tajawal-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <meta property="og:type" content="{og_type}">
   <meta property="og:locale" content="ar_AR">
+  <meta name="geo.region" content="SA;AE;QA;KW;OM;BH">
   <meta property="og:site_name" content="{BRAND}">
   <meta property="og:title" content="{esc(title)}">
   <meta property="og:description" content="{esc(description)}">
@@ -134,47 +136,101 @@ def article_card(post: dict) -> str:
     </article>"""
 
 
+PER_PAGE = 9
+
+
+def page_path(n: int) -> str:
+    return "/blog/" if n == 1 else f"/blog/page/{n}/"
+
+
+def sorted_posts() -> list[dict]:
+    # newest first: later entries in posts.json are the most recently added
+    return list(reversed(POSTS))
+
+
+def pagination(n: int, total: int) -> str:
+    if total <= 1:
+        return ""
+    items = []
+    if n > 1:
+        items.append(f'<a class="page-link" rel="prev" href="{page_path(n - 1)}">السابق →</a>')
+    for i in range(1, total + 1):
+        if i == n:
+            items.append(f'<span class="page-link is-current" aria-current="page">{i}</span>')
+        else:
+            items.append(f'<a class="page-link" href="{page_path(i)}" aria-label="الصفحة {i}">{i}</a>')
+    if n < total:
+        items.append(f'<a class="page-link" rel="next" href="{page_path(n + 1)}">← التالي</a>')
+    return f'<nav class="pagination" aria-label="صفحات المدونة">{"".join(items)}</nav>'
+
+
 def build_index() -> None:
-    title = f"مدونة الأعمال والتقنية | {BRAND}"
+    ordered = sorted_posts()
+    total = max(1, -(-len(ordered) // PER_PAGE))
+    for n in range(1, total + 1):
+        build_index_page(n, total, ordered[(n - 1) * PER_PAGE : n * PER_PAGE], len(ordered))
+
+
+def build_index_page(n: int, total: int, posts: list[dict], count: int) -> None:
+    suffix = "" if n == 1 else f" - الصفحة {n}"
+    title = f"مدونة الأعمال والتقنية{suffix} | {BRAND}"
     description = "مقالات عملية عن تطوير المواقع والتطبيقات، تكامل الأنظمة، السحابة، الدعم التقني، نقل البيانات، التحول الرقمي، ومنصة EMPID للموارد البشرية."
     schema = {
         "@context": "https://schema.org",
         "@type": "Blog",
         "name": "مدونة الريتاج للحلول التقنية",
-        "url": f"{SITE}/blog/",
+        "url": f"{SITE}{page_path(n)}",
         "description": description,
         "inLanguage": "ar",
         "publisher": {"@type": "Organization", "name": BRAND, "url": f"{SITE}/"},
     }
-    cards = "\n".join(article_card(post) for post in POSTS)
-    body = f"""<main id="main">
-  <section class="blog-landing-hero">
+    cards = "\n".join(article_card(post) for post in posts)
+    hero = ""
+    if n == 1:
+        hero = """<section class="blog-landing-hero">
     <div class="wrap">
       <nav class="breadcrumbs" aria-label="مسار الصفحة"><a href="/">الرئيسية</a><span aria-hidden="true">/</span><span>المدونة</span></nav>
       <p class="section-kicker">أفكار للعمل اليومي</p>
       <h1>التقنية أوضح حين تبدأ من سؤال جيد.</h1>
-      <p>هنا نكتب عن القرارات التي تواجه فرق الأعمال: متى نطوّر نظاماً؟ كيف ننقل بياناتنا؟ وما الذي يجعل التشغيل أكثر استقراراً؟ مقالات قصيرة تقرأها قبل أن تبدأ مشروعك.</p>
+      <p>هنا نكتب عن القرارات التي تواجه فرق الأعمال: متى نطوّر نظاماً؟ كيف ننقل بياناتنا؟ وما الذي يجعل التشغيل أكثر استقراراً؟ مقالات نقرأها قبل أن نبدأ المشروع.</p>
       <a class="blog-empid-link" href="/blog/empid/">شاهد دليل EMPID بالصور ←</a>
     </div>
-  </section>
+  </section>"""
+    else:
+        hero = f"""<section class="blog-landing-hero">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="مسار الصفحة"><a href="/">الرئيسية</a><span aria-hidden="true">/</span><a href="/blog/">المدونة</a><span aria-hidden="true">/</span><span>الصفحة {n}</span></nav>
+      <h1>المدونة: الصفحة {n} من {total}</h1>
+    </div>
+  </section>"""
+    body = f"""<main id="main">
+  {hero}
   <section class="blog-list-section section" aria-labelledby="blog-list-title">
     <div class="wrap">
-      <div class="blog-list-heading"><div><p class="section-kicker">من المدونة</p><h2 id="blog-list-title">موضوعات تساعدك على الاختيار.</h2></div><span>{len(POSTS)} مقالة</span></div>
+      <div class="blog-list-heading"><div><p class="section-kicker">من المدونة</p><h2 id="blog-list-title">{'موضوعات تساعدك على الاختيار.' if n == 1 else 'المزيد من المقالات.'}</h2></div><span>{count} مقالة</span></div>
       <div class="blog-grid">{cards}</div>
+      {pagination(n, total)}
     </div>
   </section>
   <section class="blog-contact"><div class="wrap"><div><p class="section-kicker">لديك تحدٍ محدد؟</p><h2>لننظر إليه معاً.</h2></div><a class="button button-gold" href="mailto:info@alretaj.com">راسلنا <span aria-hidden="true">↗</span></a></div></section>
 </main>
 """
-    dest = ROOT / "blog" / "index.html"
+    links = ""
+    if n > 1:
+        links += f'<link rel="prev" href="{SITE}{page_path(n - 1)}">'
+    if n < total:
+        links += f'<link rel="next" href="{SITE}{page_path(n + 1)}">'
+    head = page_head(title, description, page_path(n), schema, "website")
+    head = head.replace("</head>", links + "</head>", 1)
+    dest = ROOT / page_path(n).strip("/") / "index.html"
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(page_head(title, description, "/blog/", schema, "website") + body + footer(), encoding="utf-8")
+    dest.write_text(head + body + footer(), encoding="utf-8")
 
 
 def build_empid_hub() -> None:
     title = "EMPID بالعربية: الحضور والإجازات والتقارير | الريتاج"
     description = "تعرّف إلى EMPID من خلال لقطات حقيقية من التطبيق العربي: الحضور والانصراف، إدارة الإجازات، الخدمة الذاتية، وتقارير الموارد البشرية."
-    posts = [post for post in POSTS if post.get("visual")]
+    posts = [post for post in POSTS if post.get("visual") or post.get("module")]
     cards = "\n".join(article_card(post) for post in posts)
     schema = {
         "@context": "https://schema.org",
@@ -192,7 +248,7 @@ def build_empid_hub() -> None:
     <p>شاهد كيف تبدو مهام الموارد البشرية داخل التطبيق العربي. اللقطات مأخوذة من بيئة عرض الأفق ببيانات اختبار، ونشرح ما يمكن أن يستفيد منه فريقك وما يحتاج إلى إعداد قبل التشغيل.</p>
   </div><div class="empid-hub-preview"><a href="/assets/empid/attendance.png" data-lightbox aria-label="تكبير لقطة شاشة الحضور والانصراف"><img src="/assets/empid/attendance.png" alt="لقطة من شاشة الحضور والانصراف العربية في EMPID" width="1360" height="794" fetchpriority="high"></a><span>شاشة فعلية · بيئة عرض تجريبية</span></div></div></section>
   <section class="blog-list-section section"><div class="wrap">
-    <div class="blog-list-heading"><div><p class="section-kicker">من داخل التطبيق</p><h2>ابدأ بالمسار الذي يهمك.</h2></div><span>{len(posts)} مقالات</span></div>
+    <div class="blog-list-heading"><div><p class="section-kicker">من داخل التطبيق</p><h2>ابدأ بالمسار الذي يهمك.</h2></div><span>{len(posts)} مقالة</span></div>
     <div class="blog-grid">{cards}</div>
     <p class="empid-hub-more">تبحث عن الصورة العامة؟ <a href="/blog/empid-hr-operations/">اقرأ كيف يجمع EMPID أعمال الموارد البشرية اليومية ←</a></p>
   </div></section>
@@ -200,6 +256,33 @@ def build_empid_hub() -> None:
     dest = ROOT / "blog" / "empid" / "index.html"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(page_head(title, description, "/blog/empid/", schema, "website", posts[0]["visual"]) + body + footer(), encoding="utf-8")
+
+
+
+def word_count(post: dict) -> int:
+    parts = list(post.get("intro", [])) + [post.get("answer", "")]
+    for sec in post.get("sections", []):
+        parts += sec.get("paragraphs", []) + sec.get("bullets", [])
+        table = sec.get("table")
+        if table:
+            parts += [c for row in table["rows"] for c in row]
+    parts += [f'{f["q"]} {f["a"]}' for f in post.get("faq", [])]
+    parts.append(post.get("takeaway", ""))
+    return sum(len(str(part).split()) for part in parts)
+
+
+def render_table(table: dict) -> str:
+    head = "".join(f"<th scope=\"col\">{esc(h)}</th>" for h in table["headers"])
+    rows = "".join("<tr>" + "".join(f"<td>{esc(c)}</td>" for c in row) + "</tr>" for row in table["rows"])
+    return f'<div class="article-table-wrap"><table class="article-table"><caption>{esc(table["caption"])}</caption><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
+
+
+def render_shot(fig: dict, eager: bool = False) -> str:
+    return f"""<figure class="empid-figure shot">
+          <div class="empid-figure-top"><span class="empid-live-dot"></span>من شاشة EMPID العربية <span>بيئة عرض تجريبية</span></div>
+          <div class="empid-image-frame"><a href="{esc(fig['src'])}" data-lightbox aria-label="تكبير لقطة الشاشة"><img src="{esc(fig['src'])}" alt="{esc(fig['alt'])}" width="{fig.get('width', 1440)}" height="{fig.get('height', 900)}" loading="{'eager' if eager else 'lazy'}" decoding="async"></a></div>
+          <figcaption><strong>{esc(fig.get('label', 'لقطة فعلية'))}</strong><span>{esc(fig['caption'])}</span></figcaption>
+        </figure>"""
 
 
 def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
@@ -221,9 +304,16 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
                 "author": {"@type": "Organization", "name": BRAND},
                 "publisher": {"@type": "Organization", "name": BRAND, "logo": {"@type": "ImageObject", "url": f"{SITE}/assets/alretaj-badge.png"}},
                 **({"image": f"{SITE}{preview['src']}"} if preview else {}),
-                **({"datePublished": post["published"], "dateModified": post["published"]} if post.get("published") else {}),
+                **({"datePublished": post["published"], "dateModified": post.get("updated", post["published"])} if post.get("published") else {}),
+                **({"keywords": post["keywords"]} if post.get("keywords") else {}),
+                "wordCount": word_count(post),
+                "articleSection": post["category"],
+                "about": {"@type": "SoftwareApplication", "name": "EMPID", "applicationCategory": "BusinessApplication", "operatingSystem": "Web"},
+                "isPartOf": {"@type": "Blog", "name": "مدونة الريتاج للحلول التقنية", "url": f"{SITE}/blog/"},
+                "areaServed": ["SA", "AE", "QA", "KW", "OM", "BH"],
             },
             breadcrumb_schema(post["title"], path),
+            *([{"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in post["faq"]]}] if post.get("faq") else []),
         ],
     }
     paragraphs = "\n".join(f"<p>{esc(p)}</p>" for p in post["intro"])
@@ -244,13 +334,24 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
           </a>
           <figcaption>صورة توضيحية للمقال</figcaption>
         </figure>"""
+    figures_by_id = {f["id"]: f for f in post.get("figures", [])}
     sections = []
     for index, section in enumerate(post["sections"], 1):
         section_paragraphs = "\n".join(f"<p>{esc(p)}</p>" for p in section["paragraphs"])
         bullets = ""
         if section.get("bullets"):
             bullets = "<ul>" + "".join(f"<li>{esc(item)}</li>" for item in section["bullets"]) + "</ul>"
-        sections.append(f'<section id="section-{index}"><h2>{esc(section["heading"])}</h2>{section_paragraphs}{bullets}</section>')
+        table_html = render_table(section["table"]) if section.get("table") else ""
+        fig = figures_by_id.get(section.get("figure")) if section.get("figure") else None
+        fig_html = render_shot(fig, eager=(index == 1)) if fig and fig.get("src") else ""
+        sections.append(f'<section id="section-{index}"><h2>{esc(section["heading"])}</h2>{section_paragraphs}{bullets}{table_html}{fig_html}</section>')
+    answer_box = (f'<div class="answer-box" id="short-answer"><strong>الإجابة المختصرة</strong><p>{esc(post["answer"])}</p></div>' if post.get("answer") else "")
+    faq_html = ""
+    if post.get("faq"):
+        faq_html = '<section id="faq"><h2>أسئلة شائعة</h2><div class="faq-list">' + "".join(f'<h3>{esc(f["q"])}</h3><p>{esc(f["a"])}</p>' for f in post["faq"]) + '</div></section>'
+    sources_html = ""
+    if post.get("sources"):
+        sources_html = '<aside class="sources"><h2>مصادر ومراجع</h2><ul>' + "".join(f'<li><a href="{esc(src["url"])}" rel="noopener" target="_blank">{esc(src["title"])}</a></li>' for src in post["sources"]) + '</ul><p>المعلومات في هذا المقال عامة وليست استشارة قانونية. الأنظمة تتغير، فراجع الجهة الرسمية في بلدك قبل التطبيق. لقطات الشاشة من بيئة عرض تجريبية ببيانات وهمية.</p></aside>'
     related = "\n".join(article_card(posts_by_slug[slug]) for slug in post["related"])
     external = EXTERNAL_READING.get(slug)
     external_reading = (
@@ -272,8 +373,8 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
     </div></header>
     {featured_figure}
     <div class="wrap article-layout">
-      <aside class="article-aside"><span>في هذا المقال</span><nav aria-label="أقسام المقال">{''.join(f'<a href="#section-{i}">{esc(s["heading"])}</a>' for i,s in enumerate(post['sections'],1))}<a href="#next-step">خطوة عملية</a></nav></aside>
-      <div class="article-body">{paragraphs}{figure}{''.join(sections)}<section class="article-next" id="next-step"><p class="section-kicker">خطوة عملية</p><h2>{esc(post['takeaway_title'])}</h2><p>{esc(post['takeaway'])}</p></section>{external_reading}{product_reading}
+      <aside class="article-aside"><span>في هذا المقال</span><nav aria-label="أقسام المقال">{''.join(f'<a href="#section-{i}">{esc(s["heading"])}</a>' for i,s in enumerate(post['sections'],1))}{'<a href="#faq">أسئلة شائعة</a>' if post.get('faq') else ''}<a href="#next-step">خطوة عملية</a></nav></aside>
+      <div class="article-body">{answer_box}{paragraphs}{figure}{''.join(sections)}{faq_html}<section class="article-next" id="next-step"><p class="section-kicker">خطوة عملية</p><h2>{esc(post['takeaway_title'])}</h2><p>{esc(post['takeaway'])}</p></section>{sources_html}{external_reading}{product_reading}
         <div class="article-cta"><p>إذا كان هذا التحدي قريباً من واقع عملك، اكتب لنا ما تحتاجه.</p><a class="button button-gold" href="mailto:info@alretaj.com?subject={quote(post['subject'])}">تحدث مع الريتاج <span aria-hidden="true">↗</span></a></div>
       </div>
     </div>
@@ -283,13 +384,14 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
 """
     dest = ROOT / "blog" / slug / "index.html"
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(page_head(title, description, path, schema, visual=preview) + body + footer(), encoding="utf-8")
+    dest.write_text(page_head(title, description, path, schema, visual=preview, keywords=post.get("keywords")) + body + footer(), encoding="utf-8")
 
 
 def build_sitemap() -> None:
-    urls = ["/", "/blog/", "/blog/empid/"] + [f"/blog/{post['slug']}/" for post in POSTS]
+    urls = ["/", "/blog/", "/blog/empid/"] + [page_path(i) for i in range(2, -(-len(POSTS) // PER_PAGE) + 1)] + [f"/blog/{post['slug']}/" for post in POSTS]
     lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    lines += [f"  <url><loc>{SITE}{url}</loc></url>" for url in urls]
+    dates = {f"/blog/{p['slug']}/": p.get("updated", p.get("published")) for p in POSTS}
+    lines += [f"  <url><loc>{SITE}{url}</loc>" + (f"<lastmod>{dates[url]}</lastmod>" if dates.get(url) else "") + "</url>" for url in urls]
     lines.append("</urlset>")
     (ROOT / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
