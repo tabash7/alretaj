@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from urllib.parse import quote
 
+import rich_blocks
+
 
 ROOT = Path(__file__).resolve().parents[1]
 POSTS = json.loads((ROOT / "content" / "posts.json").read_text(encoding="utf-8"))
@@ -77,7 +79,7 @@ def page_head(title: str, description: str, path: str, schema: object, og_type: 
   <meta property="og:image" content="{esc(image_url)}">
   <meta property="og:image:alt" content="{esc(image_alt)}">
   <meta name="twitter:card" content="summary_large_image">
-  <script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>
+  <script type="application/ld+json">{json.dumps(schema, ensure_ascii=False).replace("</", "<\\/")}</script>
 </head>
 <body>
   <a class="skip-link" href="#main">انتقل إلى المحتوى</a>
@@ -291,6 +293,7 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
     title = f"{post.get('seo_title', post['title'])} | الريتاج"
     description = post["summary"]
     preview = post.get("featured") or post.get("visual")
+    rich = post.get("rich")
     schema = {
         "@context": "https://schema.org",
         "@graph": [
@@ -317,6 +320,11 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
         ],
     }
     paragraphs = "\n".join(f"<p>{esc(p)}</p>" for p in post["intro"])
+    takeaway = esc(post["takeaway"])
+    if rich:
+        schema = rich_blocks.article_schema(post, SITE, BRAND, f"{SITE}/assets/alretaj-badge.png", "مدونة الريتاج للحلول التقنية")
+        paragraphs = rich_blocks.paragraphs(post["intro"])
+        takeaway = rich_blocks.inline(post["takeaway"])
     visual = post.get("visual")
     featured = post.get("featured")
     figure = ""
@@ -336,7 +344,7 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
         </figure>"""
     figures_by_id = {f["id"]: f for f in post.get("figures", [])}
     sections = []
-    for index, section in enumerate(post["sections"], 1):
+    for index, section in enumerate([] if rich else post["sections"], 1):
         section_paragraphs = "\n".join(f"<p>{esc(p)}</p>" for p in section["paragraphs"])
         bullets = ""
         if section.get("bullets"):
@@ -352,12 +360,19 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
     sources_html = ""
     if post.get("sources"):
         sources_html = '<aside class="sources"><h2>مصادر ومراجع</h2><ul>' + "".join(f'<li><a href="{esc(src["url"])}" rel="noopener" target="_blank">{esc(src["title"])}</a></li>' for src in post["sources"]) + '</ul><p>المعلومات في هذا المقال عامة وليست استشارة قانونية. الأنظمة تتغير، فراجع الجهة الرسمية في بلدك قبل التطبيق. لقطات الشاشة من بيئة عرض تجريبية ببيانات وهمية.</p></aside>'
+    if rich:
+        sections = [rich_blocks.render_sections(post)]
+        answer_box = rich_blocks.render_answer(post)
+        faq_html = rich_blocks.render_faq(post)
+        sources_html = rich_blocks.render_sources(post)
     related = "\n".join(article_card(posts_by_slug[slug]) for slug in post["related"])
     external = EXTERNAL_READING.get(slug)
     external_reading = (
         f'<aside class="external-reading"><span>قراءة مرتبطة من {esc(external[3] if len(external) > 3 else "بصمة")}</span><a href="{esc(external[1])}">{esc(external[0])} ←</a><p>{esc(external[2])}</p></aside>'
         if external else ""
     )
+    if rich:
+        external_reading = rich_blocks.render_link_out(post) or external_reading
     product = PRODUCT_READING.get(slug)
     product_reading = (
         f'<aside class="external-reading"><span>من دليل EMPID الرسمي</span><a href="{esc(product[1])}">{esc(product[0])} ←</a><p>{esc(product[2])}</p></aside>'
@@ -374,7 +389,7 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
     {featured_figure}
     <div class="wrap article-layout">
       <aside class="article-aside"><span>في هذا المقال</span><nav aria-label="أقسام المقال">{''.join(f'<a href="#section-{i}">{esc(s["heading"])}</a>' for i,s in enumerate(post['sections'],1))}{'<a href="#faq">أسئلة شائعة</a>' if post.get('faq') else ''}<a href="#next-step">خطوة عملية</a></nav></aside>
-      <div class="article-body">{answer_box}{paragraphs}{figure}{''.join(sections)}{faq_html}<section class="article-next" id="next-step"><p class="section-kicker">خطوة عملية</p><h2>{esc(post['takeaway_title'])}</h2><p>{esc(post['takeaway'])}</p></section>{sources_html}{external_reading}{product_reading}
+      <div class="article-body{' rich-article' if rich else ''}">{answer_box}{paragraphs}{figure}{''.join(sections)}{faq_html}<section class="article-next" id="next-step"><p class="section-kicker">خطوة عملية</p><h2>{esc(post['takeaway_title'])}</h2><p>{takeaway}</p></section>{sources_html}{external_reading}{product_reading}
         <div class="article-cta"><p>إذا كان هذا التحدي قريباً من واقع عملك، اكتب لنا ما تحتاجه.</p><a class="button button-gold" href="mailto:info@alretaj.com?subject={quote(post['subject'])}">تحدث مع الريتاج <span aria-hidden="true">↗</span></a></div>
       </div>
     </div>
@@ -384,7 +399,10 @@ def build_article(post: dict, posts_by_slug: dict[str, dict]) -> None:
 """
     dest = ROOT / "blog" / slug / "index.html"
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(page_head(title, description, path, schema, visual=preview, keywords=post.get("keywords")) + body + footer(), encoding="utf-8")
+    head = page_head(title, description, path, schema, visual=preview, keywords=post.get("keywords"))
+    if rich:
+        head = rich_blocks.add_head(head, post, keywords=False)
+    dest.write_text(head + body + footer(), encoding="utf-8")
 
 
 def build_sitemap() -> None:
