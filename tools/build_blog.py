@@ -443,6 +443,36 @@ def build_home() -> None:
     path.write_text(html, encoding="utf-8")
 
 
+def build_404() -> None:
+    """GitHub Pages serves /404.html for any missing address. It is kept out of the index and the sitemap."""
+    title = f"الصفحة غير موجودة | {BRAND}"
+    description = "الصفحة التي تبحث عنها غير موجودة أو نُقلت. ابدأ من الصفحة الرئيسية أو تصفّح أحدث المقالات."
+    head = page_head(title, description, "/404.html", {"@context": "https://schema.org", "@type": "WebPage", "name": title, "inLanguage": "ar"}, "website")
+    head = "\n".join(
+        line for line in head.split("\n")
+        if not line.strip().startswith(('<link rel="canonical"', '<meta property="og:url"'))
+    ).replace('<meta name="viewport"', '<meta name="robots" content="noindex">\n  <meta name="viewport"', 1)
+    latest = "\n".join(article_card(p) for p in sorted_posts()[:3])
+    body = f"""<main id="main">
+  <section class="blog-landing-hero">
+    <div class="wrap">
+      <p class="section-kicker">خطأ 404</p>
+      <h1>هذه الصفحة غير موجودة.</h1>
+      <p>ربما تغيّر الرابط أو كُتب بشكل غير صحيح. يمكنك البدء من الصفحة الرئيسية أو تصفّح المدونة.</p>
+      <p><a class="button button-gold" href="/">الصفحة الرئيسية</a> <a class="blog-empid-link" href="/blog/">تصفّح المدونة ←</a></p>
+    </div>
+  </section>
+  <section class="blog-list-section section" aria-labelledby="latest-title">
+    <div class="wrap">
+      <div class="blog-list-heading"><div><p class="section-kicker">من المدونة</p><h2 id="latest-title">أحدث المقالات</h2></div></div>
+      <div class="blog-grid">{latest}</div>
+    </div>
+  </section>
+</main>
+"""
+    (ROOT / "404.html").write_text(head + body + footer(), encoding="utf-8")
+
+
 def main() -> None:
     slugs = [post["slug"] for post in POSTS]
     if len(slugs) != len(set(slugs)):
@@ -457,6 +487,7 @@ def main() -> None:
         build_article(post, posts_by_slug)
     build_sitemap()
     build_home()
+    build_404()
     print(f"Built blog index and {len(POSTS)} articles")
 
 
